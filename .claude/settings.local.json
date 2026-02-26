@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git clone:*)",
+      "Bash(cat:*)",
+      "Bash(npx:*)",
+      "Bash(claude plugin:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test:*)",
+      "Bash(git:*)",
+      "Bash(npm view:*)",
+      "Bash(ls:*)",
+      "Bash(npm:*)",
+      "WebFetch(domain:docs.railway.com)",
+      "Bash(curl:*)",
+      "Bash(tar -xz -C \"$HOME/.local/bin\")",
+      "Bash(chmod +x \"$HOME/.local/bin/railway\")",
+      "Bash(\"$HOME/.local/bin/railway\" --version)",
+      "Bash(tar -xz -C ~/bin)",
+      "Bash(chmod +x ~/bin/railway)",
+      "Bash(~/bin/railway --version)",
+      "Bash(~/bin/railway login:*)",
+      "Bash(~/bin/railway whoami:*)",
+      "Bash(RAILWAY_TOKEN=2d5396c2-baa3-4c60-8610-3f24364ea2f2 ~/bin/railway whoami:*)",
+      "Bash(RAILWAY_API_TOKEN=2d5396c2-baa3-4c60-8610-3f24364ea2f2 ~/bin/railway whoami:*)",
+      "Bash(~/bin/railway:*)",
+      "Bash(HOME=/Users/tomedmunds ~/bin/railway whoami:*)"
+    ]
+  }
+}
