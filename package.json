@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
     "build": "next build",
+    "postbuild": "prisma migrate deploy",
     "start": "ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
     "lint": "next lint",
     "test": "jest --passWithNoTests",
