@@ -3,14 +3,16 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-export default function DigestPage({ params }: { params: { id: string } }) {
+export default function DigestPage({ params }: { params: Promise<{ id: string }> }) {
   const [html, setHtml] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`/api/digests/${params.id}`)
-      .then(r => r.json())
-      .then(d => setHtml(d.emailHtml))
-  }, [params.id])
+    params.then(({ id }) => {
+      fetch(`/api/digests/${id}`)
+        .then(r => r.json())
+        .then(d => setHtml(d.emailHtml))
+    })
+  }, [params])
 
   return (
     <main className="max-w-2xl mx-auto px-4 pb-16">
