@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Story {
+  id               String    @id @default(cuid())
+  title            String
+  url              String    @unique
+  sourceDomain     String
+  rawContent       String
+  summary          String?
+  score            Float?
+  category         String?
+  publishedAt      DateTime?
+  fetchedAt        DateTime  @default(now())
+  includedInDigest Boolean   @default(false)
+
+  @@map("stories")
+}
+
+model Digest {
+  id        String   @id @default(cuid())
+  sentAt    DateTime @default(now())
+  emailHtml String
+  storyIds  String[]
+
+  @@map("digests")
+}
+
+model FetchLog {
+  id            String   @id @default(cuid())
+  ranAt         DateTime @default(now())
+  storiesFound  Int      @default(0)
+  status        String
+  error         String?
+
+  @@map("fetch_logs")
+}
