@@ -45,5 +45,6 @@ app.prepare().then(() => {
 
     console.log(`[cron] fetchJob scheduled: ${digestConfig.fetchCron}`)
     console.log(`[cron] digestJob scheduled: ${digestConfig.digestCron}`)
+    console.log('[server] Ready v2')
   })
 })
