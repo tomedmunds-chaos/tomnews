@@ -1,5 +1,6 @@
 import { createServer } from 'http'
 import { parse } from 'url'
+import { execSync } from 'child_process'
 import next from 'next'
 import cron from 'node-cron'
 import { runFetchJob } from './lib/jobs/fetchJob'
@@ -19,6 +20,17 @@ app.prepare().then(() => {
     await handle(req, res, parsedUrl)
   }).listen(port, hostname, () => {
     console.log(`> Ready on http://${hostname}:${port}`)
+
+    // Push DB schema after server is listening (non-blocking)
+    setTimeout(() => {
+      try {
+        console.log('[db] Running prisma db push...')
+        execSync('npx prisma db push --skip-generate --accept-data-loss', { stdio: 'inherit' })
+        console.log('[db] Schema up to date')
+      } catch (err) {
+        console.error('[db] prisma db push failed:', err)
+      }
+    }, 0)
 
     // Register cron jobs
     cron.schedule(digestConfig.fetchCron, () => {
