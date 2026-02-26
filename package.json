@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
     "build": "next build",
-    "start": "next start",
+    "start": "ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
     "lint": "next lint",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch"
@@ -36,6 +36,8 @@
     "prisma": "^7.4.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   }
 }
