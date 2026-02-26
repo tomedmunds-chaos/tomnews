@@ -7,6 +7,11 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   testRegex: '.*\\.test\\.ts$',
+  globals: {
+    'ts-jest': {
+      tsconfig: './tsconfig.test.json',
+    },
+  },
 }
 
 export default config
