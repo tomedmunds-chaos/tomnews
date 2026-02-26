@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
     "build": "next build",
-    "start": "prisma migrate deploy && ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
+    "start": "prisma db push --skip-generate && ts-node --project tsconfig.server.json -r tsconfig-paths/register server.ts",
     "lint": "next lint",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch"
@@ -17,7 +17,10 @@
     "node-cron": "^4.2.1",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "resend": "^6.9.2"
+    "resend": "^6.9.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5"
   },
   "engines": {
     "node": ">=18"
@@ -35,9 +38,6 @@
     "jest-environment-node": "^30.2.0",
     "prisma": "^6.19.2",
     "tailwindcss": "^4",
-    "ts-jest": "^29.4.6",
-    "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0",
-    "typescript": "^5"
+    "ts-jest": "^29.4.6"
   }
 }
