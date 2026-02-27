@@ -11,6 +11,7 @@ export interface ScoredStory extends RawStory {
   score: number
   summary: string
   category: string
+  tweetAuthor?: string
 }
 
 const VALID_CATEGORIES = [

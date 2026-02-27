@@ -1,10 +1,12 @@
 import { runFetchJob } from '../fetchJob'
 import * as perplexity from '../../perplexity'
 import * as claude from '../../claude'
+import * as socialdata from '../../socialdata'
 import { prisma } from '../../prisma'
 
 jest.mock('../../perplexity')
 jest.mock('../../claude')
+jest.mock('../../socialdata')
 jest.mock('../../prisma', () => ({
   prisma: {
     story: {
@@ -24,6 +26,7 @@ describe('runFetchJob', () => {
     ;(perplexity.fetchStoriesFromPerplexity as jest.Mock).mockResolvedValue([
       { title: 'New AI Story', url: 'https://new.ai/story', sourceDomain: 'new.ai', rawContent: 'content' },
     ])
+    ;(socialdata.fetchTweetsFromAccounts as jest.Mock).mockResolvedValue([])
     ;(claude.scoreAndSummarizeStories as jest.Mock).mockResolvedValue([
       { title: 'New AI Story', url: 'https://new.ai/story', sourceDomain: 'new.ai', rawContent: 'content', score: 8, summary: 'A new AI story.', category: 'Research' },
     ])
@@ -43,6 +46,7 @@ describe('runFetchJob', () => {
 
   it('logs error and still creates fetch log on failure', async () => {
     ;(perplexity.fetchStoriesFromPerplexity as jest.Mock).mockRejectedValue(new Error('network error'))
+    ;(socialdata.fetchTweetsFromAccounts as jest.Mock).mockResolvedValue([])
     ;(prisma.story.findMany as jest.Mock).mockResolvedValue([])
     ;(prisma.fetchLog.create as jest.Mock).mockResolvedValue({})
 

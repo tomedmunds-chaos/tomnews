@@ -1,5 +1,7 @@
 import { searchQueries } from '@/config/topics'
+import { twitterUsernames } from '@/config/accounts'
 import { fetchStoriesFromPerplexity, RawStory } from '../perplexity'
+import { fetchTweetsFromAccounts, TweetStory } from '../socialdata'
 import { scoreAndSummarizeStories } from '../claude'
 import { deduplicateStories } from '../dedup'
 import { prisma } from '../prisma'
@@ -12,19 +14,27 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
     const existingStories = await prisma.story.findMany({ select: { url: true } })
     const existingUrls = existingStories.map((s: { url: string }) => s.url)
 
-    // Fetch from all search queries in parallel, collecting errors per query
-    const rawResults = await Promise.allSettled(
-      searchQueries.map(q => fetchStoriesFromPerplexity(q))
-    )
-    const queryErrors = rawResults
+    // Run Perplexity queries and Twitter account feed in parallel
+    const [perplexityResults, twitterStories] = await Promise.all([
+      Promise.allSettled(searchQueries.map(q => fetchStoriesFromPerplexity(q))),
+      fetchTweetsFromAccounts(twitterUsernames).catch((err) => {
+        console.error('[fetchJob] Twitter fetch failed:', err)
+        return [] as TweetStory[]
+      }),
+    ])
+
+    const queryErrors = perplexityResults
       .filter((r): r is PromiseRejectedResult => r.status === 'rejected')
       .map(r => r.reason instanceof Error ? r.reason.message : String(r.reason))
     if (queryErrors.length > 0) {
-      console.error('[fetchJob] Query errors:', queryErrors)
+      console.error('[fetchJob] Perplexity query errors:', queryErrors)
     }
-    const allRaw = rawResults
+
+    const perplexityStories = perplexityResults
       .filter((r): r is PromiseFulfilledResult<RawStory[]> => r.status === 'fulfilled')
       .flatMap(r => r.value)
+
+    const allRaw: RawStory[] = [...perplexityStories, ...twitterStories]
 
     // Deduplicate
     const newStories = deduplicateStories(allRaw, existingUrls)
@@ -46,7 +56,7 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
 
       // Save to DB
       await prisma.story.createMany({
-        data: scored.map((s: { title: string; url: string; sourceDomain: string; rawContent: string; summary: string; score: number; category: string; publishedAt?: string }) => ({
+        data: scored.map((s) => ({
           title: s.title,
           url: s.url,
           sourceDomain: s.sourceDomain,
@@ -55,6 +65,7 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
           score: s.score,
           category: s.category,
           publishedAt: s.publishedAt ? new Date(s.publishedAt) : null,
+          tweetAuthor: s.tweetAuthor ?? null,
         })),
         skipDuplicates: true,
       })
@@ -63,7 +74,7 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
     }
 
     // If all queries failed, treat as error
-    if (queryErrors.length === searchQueries.length && storiesFound === 0) {
+    if (queryErrors.length === searchQueries.length) {
       const error = queryErrors[0]
       await prisma.fetchLog.create({
         data: { storiesFound: 0, status: 'error', error },
