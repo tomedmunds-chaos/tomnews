@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { parseBullets } from '@/lib/parseBullets'
+import { getPlaceholderGradient } from '@/lib/placeholderGradient'
 
 interface Story {
   id: string
@@ -13,6 +14,7 @@ interface Story {
   category: string | null
   fetchedAt: string
   tweetAuthor?: string | null
+  imageUrl?: string | null
 }
 
 export function StoryReader({
@@ -101,8 +103,8 @@ export function StoryReader({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* Progress bars — red fill for current and previous */}
-      <div className="flex gap-1 px-3 pt-3 pb-1">
+      {/* Progress bars — absolute z-10 so they sit above the hero */}
+      <div className="absolute top-0 left-0 right-0 z-10 flex gap-1 px-3 pt-3 pb-1">
         {stories.map((_, i) => (
           <div
             key={i}
@@ -114,9 +116,9 @@ export function StoryReader({
         ))}
       </div>
 
-      {/* Close button */}
+      {/* Close button — absolute z-10 above hero */}
       <button
-        className="absolute top-2 right-3 p-2 text-lg leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-sm"
+        className="absolute top-2 right-3 z-10 p-2 text-lg leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-sm"
         style={{ color: 'rgba(242,239,232,0.5)' }}
         onMouseEnter={(e) => (e.currentTarget.style.color = '#F2EFE8')}
         onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(242,239,232,0.5)')}
@@ -128,8 +130,31 @@ export function StoryReader({
         ✕
       </button>
 
+      {/* Hero image / gradient — 42vh */}
+      <div className="relative h-[42vh] shrink-0 overflow-hidden">
+        {story.imageUrl ? (
+          <img
+            src={story.imageUrl}
+            alt=""
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div
+            className="w-full h-full"
+            style={{ background: getPlaceholderGradient(story.title, story.category) }}
+            aria-hidden="true"
+          />
+        )}
+        {/* Fade to dark at bottom */}
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, transparent 30%, #111009)' }}
+          aria-hidden="true"
+        />
+      </div>
+
       {/* Story content */}
-      <div className="flex-1 min-h-0 flex flex-col justify-center px-6 py-8 max-w-lg mx-auto w-full overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto px-6 pt-4 pb-8 max-w-lg mx-auto w-full">
         {/* Source + author */}
         <p className="font-label text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(242,239,232,0.45)' }}>
           {story.sourceDomain}
@@ -150,24 +175,24 @@ export function StoryReader({
             </li>
           ))}
         </ul>
-      </div>
 
-      {/* Read full article */}
-      <div className="px-6 pb-8 flex justify-center">
-        <a
-          href={story.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-label text-xs tracking-widest uppercase px-6 py-2.5 transition-colors"
-          style={{
-            border: '1px solid rgba(242,239,232,0.25)',
-            borderRadius: '2px',
-            color: 'rgba(242,239,232,0.7)',
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          READ FULL ARTICLE →
-        </a>
+        {/* Read full article */}
+        <div className="mt-8 flex justify-center">
+          <a
+            href={story.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-label text-xs tracking-widest uppercase px-6 py-2.5 transition-colors"
+            style={{
+              border: '1px solid rgba(242,239,232,0.25)',
+              borderRadius: '2px',
+              color: 'rgba(242,239,232,0.7)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            READ FULL ARTICLE →
+          </a>
+        </div>
       </div>
     </div>
   )

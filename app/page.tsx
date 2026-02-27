@@ -16,6 +16,7 @@ interface Story {
   category: string | null
   fetchedAt: string
   tweetAuthor?: string | null
+  imageUrl?: string | null
 }
 
 export default function Home() {
