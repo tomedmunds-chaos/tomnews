@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 interface Status {
   lastFetch: { ranAt: string; status: string; storiesFound: number; error?: string } | null
@@ -23,18 +23,25 @@ export function StatusHeader({ onRefresh }: { onRefresh: () => void }) {
 
   async function handleRefresh() {
     setRefreshing(true)
-    await fetch('/api/refresh', { method: 'POST' })
-    setRefreshing(false)
-    await reloadStatus()
-    onRefresh()
+    try {
+      await fetch('/api/refresh', { method: 'POST' })
+      await reloadStatus()
+      onRefresh()
+    } catch (e) {
+      console.error('[StatusHeader] Refresh failed:', e)
+    } finally {
+      setRefreshing(false)
+    }
   }
 
-  const dateStr = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).toUpperCase()
+  const dateStr = useMemo(() =>
+    new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }).toUpperCase()
+  , [])
 
   const storyCount = status?.totalStories ?? 0
   const lastFetchTime = status?.lastFetch
@@ -43,16 +50,18 @@ export function StatusHeader({ onRefresh }: { onRefresh: () => void }) {
 
   return (
     <header className="pt-8 pb-0">
-      <div className="relative text-center">
-        {/* Refresh — top right */}
+      <div className="flex justify-end mb-2">
         <button
           onClick={handleRefresh}
           disabled={refreshing}
-          className="absolute right-0 top-1 font-label text-xs tracking-widest uppercase text-muted hover:text-accent transition-colors disabled:opacity-40"
+          aria-label={refreshing ? 'Fetching stories, please wait' : 'Refresh stories'}
+          className="font-label text-xs tracking-widest uppercase text-muted hover:text-accent transition-colors disabled:opacity-40"
         >
           {refreshing ? 'FETCHING…' : '↺ REFRESH'}
         </button>
+      </div>
 
+      <div className="text-center">
         {/* Masthead title */}
         <h1 className="font-display text-5xl font-bold tracking-tight text-ink leading-none">
           The Signal
