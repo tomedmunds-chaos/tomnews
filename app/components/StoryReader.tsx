@@ -32,7 +32,7 @@ export function StoryReader({
   const onCloseRef = useRef(onClose)
   const touchHandledRef = useRef(false)
   const containerRef = useRef<HTMLDivElement>(null)
-  useEffect(() => { onCloseRef.current = onClose })
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
 
   useEffect(() => {
     containerRef.current?.focus()
