@@ -7,8 +7,9 @@ export interface RawStory {
 }
 
 const SYSTEM_PROMPT = `You are a news extraction assistant. Given a search query about AI news,
-return a JSON array of the most relevant, distinct news stories from the last 24 hours.
-Each item must have: title, url, sourceDomain, rawContent (2-3 sentence summary), publishedAt (ISO string if known).
+return a JSON array of the most relevant, distinct news stories published in the last 48 hours ONLY.
+Do NOT include stories older than 2 days. If no recent stories exist, return an empty array [].
+Each item must have: title, url, sourceDomain, rawContent (2-3 sentence summary), publishedAt (ISO 8601 string, required).
 Return ONLY the JSON array, no other text. Maximum 5 stories per query.`
 
 export async function fetchStoriesFromPerplexity(query: string): Promise<RawStory[]> {

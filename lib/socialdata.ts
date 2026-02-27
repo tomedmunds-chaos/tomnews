@@ -19,7 +19,7 @@ async function fetchUserTweets(username: string): Promise<TweetStory[]> {
   if (!apiKey) throw new Error('[socialdata] SOCIALDATA_API_KEY is not set')
 
   const response = await fetch(
-    `https://api.socialdata.tools/twitter/search?query=${encodeURIComponent(`from:${username}`)}&type=Latest`,
+    `https://api.socialdata.tools/twitter/search?query=${encodeURIComponent(`from:${username} -filter:replies`)}&type=Latest`,
     {
       headers: {
         Authorization: `Bearer ${apiKey}`,

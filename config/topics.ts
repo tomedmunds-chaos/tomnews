@@ -1,10 +1,10 @@
 export const searchQueries = [
-  'AI model release announcement site:openai.com OR site:anthropic.com OR site:deepmind.com OR site:mistral.ai',
-  'large language model research paper 2026',
-  'AI policy regulation news 2026',
-  'artificial intelligence industry news today',
-  'AI agent autonomous systems 2026',
-  'AI safety alignment research',
+  'major AI model release or launch announcement this week',
+  'large language model research breakthrough paper 2026',
+  'AI policy regulation government news 2026',
+  'artificial intelligence startup funding industry news today',
+  'AI agent autonomous systems news 2026',
+  'AI safety alignment research findings 2026',
 ]
 
 export const digestConfig = {

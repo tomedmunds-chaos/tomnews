@@ -24,21 +24,28 @@ const VALID_CATEGORIES = [
   'Other',
 ]
 
-const SCORING_PROMPT = `You are an AI news editor. Score each story for importance to the AI/ML community.
+function getScoringPrompt() {
+  const today = new Date().toISOString().split('T')[0]
+  return `You are an AI news editor curating the most important stories of the day for the AI/ML community. Today is ${today}.
+
+Score each story for importance AND current relevance. Reward stories that are new and breaking; penalise anything old, evergreen, or purely opinion.
 
 Return a JSON array where each item has:
 - url: (same as input)
-- score: number 1-10 (10 = groundbreaking, 7 = notable, 4 = routine, 1 = trivial/noise)
-- bullets: array of up to 3 short bullet points explaining what happened and why it matters
+- score: number 1-10 (10 = groundbreaking and current, 7 = notable and recent, 4 = routine, 1 = trivial/stale/noise)
+- bullets: array of up to 3 short bullet points explaining what happened and why it matters today
 - category: one of: ${VALID_CATEGORIES.join(', ')}
 
 Scoring guide:
-- 9-10: Major model releases, significant safety findings, landmark policy
-- 7-8: New research papers with clear impact, company pivots, notable funding
-- 5-6: Minor releases, incremental research, general industry news
-- 1-4: Opinion pieces, minor updates, duplicates of already-known news
+- 9-10: Major model releases, significant safety findings, or landmark policy announced THIS WEEK
+- 7-8: Significant research, company news, or industry shifts from the last 2 days
+- 5-6: Minor releases, incremental research, general industry updates
+- 1-4: Opinion pieces, rehashed older news, minor updates, anything not genuinely new
+
+Be strict: the goal is to surface the 10 most important AI stories happening RIGHT NOW, not evergreen content.
 
 Return ONLY the JSON array, no other text.`
+}
 
 export async function scoreAndSummarizeStories(stories: RawStory[]): Promise<ScoredStory[]> {
   if (stories.length === 0) return []
@@ -48,10 +55,11 @@ export async function scoreAndSummarizeStories(stories: RawStory[]): Promise<Sco
     url: s.url,
     sourceDomain: s.sourceDomain,
     rawContent: s.rawContent,
+    publishedAt: s.publishedAt ?? null,
   })))
 
   const model = getClient().getGenerativeModel({ model: 'gemini-1.5-flash' })
-  const result = await model.generateContent(`${SCORING_PROMPT}\n\nStories to score:\n${storiesJson}`)
+  const result = await model.generateContent(`${getScoringPrompt()}\n\nStories to score:\n${storiesJson}`)
   const content = result.response.text()
 
   const cleaned = content.replace(/```json\n?|\n?```/g, '').trim()
