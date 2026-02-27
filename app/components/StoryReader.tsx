@@ -28,7 +28,13 @@ export function StoryReader({
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
   const onCloseRef = useRef(onClose)
+  const touchHandledRef = useRef(false)
+  const containerRef = useRef<HTMLDivElement>(null)
   useEffect(() => { onCloseRef.current = onClose })
+
+  useEffect(() => {
+    containerRef.current?.focus()
+  }, [])
 
   const story = stories[index]
   const bullets = parseBullets(story?.summary ?? null)
@@ -49,6 +55,10 @@ export function StoryReader({
   if (stories.length === 0 || !story) return null
 
   function handleTap(e: React.MouseEvent<HTMLDivElement>) {
+    if (touchHandledRef.current) {
+      touchHandledRef.current = false
+      return
+    }
     const x = e.clientX
     const width = (e.currentTarget as HTMLDivElement).offsetWidth
     if (x < width / 3) prev()
@@ -68,9 +78,11 @@ export function StoryReader({
     touchStartY.current = null
     if (Math.abs(dy) > Math.abs(dx)) {
       if (dy > 60) onCloseRef.current()
+      touchHandledRef.current = true
       return
     }
     if (Math.abs(dx) > 30) {
+      touchHandledRef.current = true
       if (dx < 0) next()
       else prev()
     }
@@ -78,6 +90,11 @@ export function StoryReader({
 
   return (
     <div
+      ref={containerRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-modal="true"
+      aria-label={story.title}
       className="fixed inset-0 z-50 flex flex-col select-none"
       style={{ background: '#111009', color: '#F2EFE8' }}
       onClick={handleTap}
@@ -99,11 +116,13 @@ export function StoryReader({
 
       {/* Close button */}
       <button
-        className="absolute top-2 right-3 p-2 text-lg leading-none transition-opacity"
+        className="absolute top-2 right-3 p-2 text-lg leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-sm"
         style={{ color: 'rgba(242,239,232,0.5)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = '#F2EFE8')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(242,239,232,0.5)')}
+        onFocus={(e) => (e.currentTarget.style.color = '#F2EFE8')}
+        onBlur={(e) => (e.currentTarget.style.color = 'rgba(242,239,232,0.5)')}
         onClick={(e) => { e.stopPropagation(); onCloseRef.current() }}
-        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#F2EFE8')}
-        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'rgba(242,239,232,0.5)')}
         aria-label="Close reader"
       >
         ✕
