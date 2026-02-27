@@ -29,7 +29,7 @@ const SCORING_PROMPT = `You are an AI news editor. Score each story for importan
 Return a JSON array where each item has:
 - url: (same as input)
 - score: number 1-10 (10 = groundbreaking, 7 = notable, 4 = routine, 1 = trivial/noise)
-- summary: one clear sentence explaining what happened and why it matters
+- bullets: array of up to 3 short bullet points explaining what happened and why it matters
 - category: one of: ${VALID_CATEGORIES.join(', ')}
 
 Scoring guide:
@@ -55,14 +55,28 @@ export async function scoreAndSummarizeStories(stories: RawStory[]): Promise<Sco
   const content = result.response.text()
 
   const cleaned = content.replace(/```json\n?|\n?```/g, '').trim()
-  const scored = JSON.parse(cleaned) as Array<{ url: string; score: number; summary: string; category: string }>
+
+  let scored: Array<{ url: string; score: number; bullets: string[]; category: string }> = []
+  try {
+    scored = JSON.parse(cleaned)
+  } catch {
+    return stories.map(story => ({
+      ...story,
+      score: 5,
+      summary: JSON.stringify([story.rawContent.slice(0, 120)]),
+      category: 'Other',
+    }))
+  }
 
   return stories.map(story => {
     const scoring = scored.find(s => s.url === story.url)
+    const bullets = scoring?.bullets?.slice(0, 3) ?? []
     return {
       ...story,
       score: scoring?.score ?? 5,
-      summary: scoring?.summary ?? story.rawContent.slice(0, 120),
+      summary: bullets.length > 0
+        ? JSON.stringify(bullets)
+        : JSON.stringify([story.rawContent.slice(0, 120)]),
       category: scoring?.category ?? 'Other',
     }
   })

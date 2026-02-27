@@ -53,7 +53,7 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
         scored = newStories.map(s => ({
           ...s,
           score: 5,
-          summary: s.rawContent.slice(0, 120),
+          summary: JSON.stringify([s.rawContent.slice(0, 120)]),
           category: 'Other',
         }))
       }
