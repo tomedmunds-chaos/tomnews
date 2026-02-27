@@ -42,7 +42,7 @@ export default function Home() {
         <a href="/digests" className="text-sm text-gray-400 hover:text-gray-700">Digest history →</a>
       </div>
       <div className="mt-4 mb-4">
-        <TopicFilter selected={category} onChange={setCategory} />
+        <TopicFilter selected={category} onChange={(cat) => { setReaderIndex(null); setCategory(cat) }} />
       </div>
       {loading ? (
         <div className="text-center text-gray-400 py-16">Loading stories...</div>
