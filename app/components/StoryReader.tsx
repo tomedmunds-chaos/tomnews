@@ -78,25 +78,32 @@ export function StoryReader({
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-gray-950 text-white flex flex-col select-none"
+      className="fixed inset-0 z-50 flex flex-col select-none"
+      style={{ background: '#111009', color: '#F2EFE8' }}
       onClick={handleTap}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* Progress bars */}
+      {/* Progress bars — red fill for current and previous */}
       <div className="flex gap-1 px-3 pt-3 pb-1">
         {stories.map((_, i) => (
           <div
             key={i}
-            className={`h-0.5 flex-1 rounded-full transition-colors ${i <= index ? 'bg-white' : 'bg-white/25'}`}
+            className="h-0.5 flex-1 rounded-full transition-colors"
+            style={{
+              background: i <= index ? '#C8102E' : 'rgba(242,239,232,0.2)',
+            }}
           />
         ))}
       </div>
 
       {/* Close button */}
       <button
-        className="absolute top-2 right-3 text-white/60 hover:text-white p-2 text-lg leading-none"
+        className="absolute top-2 right-3 p-2 text-lg leading-none transition-opacity"
+        style={{ color: 'rgba(242,239,232,0.5)' }}
         onClick={(e) => { e.stopPropagation(); onCloseRef.current() }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.color = '#F2EFE8')}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.color = 'rgba(242,239,232,0.5)')}
         aria-label="Close reader"
       >
         ✕
@@ -104,28 +111,43 @@ export function StoryReader({
 
       {/* Story content */}
       <div className="flex-1 min-h-0 flex flex-col justify-center px-6 py-8 max-w-lg mx-auto w-full overflow-y-auto">
-        <p className="text-sm text-white/40 mb-1">
+        {/* Source + author */}
+        <p className="font-label text-xs tracking-widest uppercase mb-3" style={{ color: 'rgba(242,239,232,0.45)' }}>
           {story.sourceDomain}
-          {story.tweetAuthor && <span className="ml-2">via @{story.tweetAuthor}</span>}
+          {story.tweetAuthor && <span className="ml-3">@{story.tweetAuthor}</span>}
         </p>
-        <h2 className="text-2xl font-bold leading-tight mb-6">{story.title}</h2>
-        <ul className="space-y-4 list-disc list-inside">
+
+        {/* Headline */}
+        <h2 className="font-display text-3xl font-bold leading-tight mb-6" style={{ color: '#F2EFE8' }}>
+          {story.title}
+        </h2>
+
+        {/* Bullets */}
+        <ul className="space-y-4">
           {bullets.map((b, i) => (
-            <li key={i} className="text-white/80 text-base leading-relaxed">{b}</li>
+            <li key={i} className="font-body text-base leading-relaxed flex gap-3" style={{ color: 'rgba(242,239,232,0.85)' }}>
+              <span style={{ color: '#C8102E' }} className="shrink-0 mt-0.5" aria-hidden="true">·</span>
+              <span>{b}</span>
+            </li>
           ))}
         </ul>
       </div>
 
-      {/* Read full article link */}
+      {/* Read full article */}
       <div className="px-6 pb-8 flex justify-center">
         <a
           href={story.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm border border-white/25 rounded-full px-6 py-2.5 hover:bg-white/10 transition-colors"
+          className="font-label text-xs tracking-widest uppercase px-6 py-2.5 transition-colors"
+          style={{
+            border: '1px solid rgba(242,239,232,0.25)',
+            borderRadius: '2px',
+            color: 'rgba(242,239,232,0.7)',
+          }}
           onClick={(e) => e.stopPropagation()}
         >
-          Read full article →
+          READ FULL ARTICLE →
         </a>
       </div>
     </div>
