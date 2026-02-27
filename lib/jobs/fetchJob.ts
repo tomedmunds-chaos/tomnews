@@ -5,6 +5,7 @@ import { fetchTweetsFromAccounts, TweetStory } from '../socialdata'
 import { scoreAndSummarizeStories } from '../claude'
 import { deduplicateStories } from '../dedup'
 import { prisma } from '../prisma'
+import { fetchOgImage } from '../ogImage'
 
 export async function runFetchJob(): Promise<{ storiesFound: number; status: string; error?: string }> {
   let storiesFound = 0
@@ -43,14 +44,23 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
     // Deduplicate
     const newStories = deduplicateStories(allRaw, existingUrls)
 
-    if (newStories.length > 0) {
+    // Fetch OG images in parallel for stories that don't already have one (article stories)
+    const newStoriesWithImages = await Promise.all(
+      newStories.map(async (s) => {
+        if (s.imageUrl) return s
+        const imageUrl = await fetchOgImage(s.url)
+        return imageUrl ? { ...s, imageUrl } : s
+      })
+    )
+
+    if (newStoriesWithImages.length > 0) {
       // Score and summarize — fall back to defaults if AI scoring is unavailable
       let scored: Awaited<ReturnType<typeof scoreAndSummarizeStories>>
       try {
-        scored = await scoreAndSummarizeStories(newStories)
+        scored = await scoreAndSummarizeStories(newStoriesWithImages)
       } catch (err) {
         console.error('[fetchJob] Scoring unavailable, saving unscored stories:', err)
-        scored = newStories.map(s => ({
+        scored = newStoriesWithImages.map(s => ({
           ...s,
           score: 5,
           summary: JSON.stringify([s.rawContent.slice(0, 120)]),
@@ -70,6 +80,7 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
           category: s.category,
           publishedAt: s.publishedAt ? new Date(s.publishedAt) : null,
           tweetAuthor: s.tweetAuthor ?? null,
+          imageUrl: s.imageUrl ?? null,
         })),
         skipDuplicates: true,
       })
