@@ -31,6 +31,11 @@ describe('fetchTweetsFromAccounts', () => {
     expect(stories[0].sourceDomain).toBe('x.com')
     expect(stories[0].rawContent).toBe('Fascinating new paper on attention mechanisms.')
     expect(stories[0].tweetAuthor).toBe('karpathy')
+
+    // Verify the correct search endpoint is used (not the old /user/timeline one)
+    const calledUrl = (global.fetch as jest.Mock).mock.calls[0][0] as string
+    expect(calledUrl).toContain('twitter/search')
+    expect(calledUrl).toContain('from%3Akarpathy')
   })
 
   it('uses the external link URL when tweet contains one', async () => {
