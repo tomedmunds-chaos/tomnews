@@ -27,6 +27,8 @@ export function StoryReader({
   const [index, setIndex] = useState(Math.min(Math.max(0, initialIndex), Math.max(0, stories.length - 1)))
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose })
 
   const story = stories[index]
   const bullets = parseBullets(story?.summary ?? null)
@@ -38,11 +40,11 @@ export function StoryReader({
     function onKey(e: KeyboardEvent) {
       if (e.key === 'ArrowLeft') setIndex(i => Math.max(0, i - 1))
       else if (e.key === 'ArrowRight') setIndex(i => Math.min(stories.length - 1, i + 1))
-      else if (e.key === 'Escape') onClose()
+      else if (e.key === 'Escape') onCloseRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [stories.length, onClose])
+  }, [stories.length])
 
   if (stories.length === 0 || !story) return null
 
@@ -101,7 +103,7 @@ export function StoryReader({
       </button>
 
       {/* Story content */}
-      <div className="flex-1 flex flex-col justify-center px-6 py-8 max-w-lg mx-auto w-full overflow-y-auto">
+      <div className="flex-1 min-h-0 flex flex-col justify-center px-6 py-8 max-w-lg mx-auto w-full overflow-y-auto">
         <p className="text-sm text-white/40 mb-1">
           {story.sourceDomain}
           {story.tweetAuthor && <span className="ml-2">via @{story.tweetAuthor}</span>}
