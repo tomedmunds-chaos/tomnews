@@ -24,25 +24,27 @@ export function StoryReader({
   initialIndex: number
   onClose: () => void
 }) {
-  const [index, setIndex] = useState(initialIndex)
+  const [index, setIndex] = useState(Math.min(Math.max(0, initialIndex), Math.max(0, stories.length - 1)))
   const touchStartX = useRef<number | null>(null)
   const touchStartY = useRef<number | null>(null)
 
   const story = stories[index]
-  const bullets = parseBullets(story.summary)
+  const bullets = parseBullets(story?.summary ?? null)
 
   function prev() { setIndex(i => Math.max(0, i - 1)) }
   function next() { setIndex(i => Math.min(stories.length - 1, i + 1)) }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'ArrowLeft') prev()
-      else if (e.key === 'ArrowRight') next()
+      if (e.key === 'ArrowLeft') setIndex(i => Math.max(0, i - 1))
+      else if (e.key === 'ArrowRight') setIndex(i => Math.min(stories.length - 1, i + 1))
       else if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  }, [stories.length, onClose])
+
+  if (stories.length === 0 || !story) return null
 
   function handleTap(e: React.MouseEvent<HTMLDivElement>) {
     const x = e.clientX
@@ -99,7 +101,7 @@ export function StoryReader({
       </button>
 
       {/* Story content */}
-      <div className="flex-1 flex flex-col justify-center px-6 py-8 max-w-lg mx-auto w-full overflow-hidden">
+      <div className="flex-1 flex flex-col justify-center px-6 py-8 max-w-lg mx-auto w-full overflow-y-auto">
         <p className="text-sm text-white/40 mb-1">
           {story.sourceDomain}
           {story.tweetAuthor && <span className="ml-2">via @{story.tweetAuthor}</span>}
