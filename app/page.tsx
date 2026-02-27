@@ -26,11 +26,17 @@ export default function Home() {
 
   const loadStories = useCallback(async () => {
     setLoading(true)
-    const params = category !== 'All' ? `?category=${encodeURIComponent(category)}` : ''
-    const res = await fetch(`/api/stories${params}`)
-    const data = await res.json()
-    setStories(data)
-    setLoading(false)
+    try {
+      const params = category !== 'All' ? `?category=${encodeURIComponent(category)}` : ''
+      const res = await fetch(`/api/stories${params}`)
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      const data = await res.json()
+      setStories(Array.isArray(data) ? data : [])
+    } catch {
+      // keep stories as-is on error so the list doesn't vanish
+    } finally {
+      setLoading(false)
+    }
   }, [category])
 
   useEffect(() => { loadStories() }, [loadStories])
@@ -44,7 +50,7 @@ export default function Home() {
           href="/digests"
           className="font-label text-xs tracking-widest uppercase text-muted hover:text-accent transition-colors"
         >
-          Digest History →
+          Digest History <span aria-hidden="true">→</span>
         </a>
       </div>
 
