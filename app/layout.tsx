@@ -5,19 +5,22 @@ import './globals.css'
 const playfair = Playfair_Display({
   variable: '--font-playfair',
   subsets: ['latin'],
-  weight: ['400', '700'],
+  weight: 'variable',
+  display: 'swap',
 })
 
 const sourceSerif = Source_Serif_4({
   variable: '--font-source-serif',
   subsets: ['latin'],
-  weight: ['400', '600'],
+  weight: 'variable',
+  display: 'swap',
 })
 
 const dmMono = DM_Mono({
   variable: '--font-dm-mono',
   subsets: ['latin'],
   weight: ['400', '500'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
