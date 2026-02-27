@@ -30,8 +30,19 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
     const newStories = deduplicateStories(allRaw, existingUrls)
 
     if (newStories.length > 0) {
-      // Score and summarize
-      const scored = await scoreAndSummarizeStories(newStories)
+      // Score and summarize — fall back to defaults if AI scoring is unavailable
+      let scored: Awaited<ReturnType<typeof scoreAndSummarizeStories>>
+      try {
+        scored = await scoreAndSummarizeStories(newStories)
+      } catch (err) {
+        console.error('[fetchJob] Scoring unavailable, saving unscored stories:', err)
+        scored = newStories.map(s => ({
+          ...s,
+          score: 5,
+          summary: s.rawContent.slice(0, 120),
+          category: 'Other',
+        }))
+      }
 
       // Save to DB
       await prisma.story.createMany({

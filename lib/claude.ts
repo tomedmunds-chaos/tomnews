@@ -1,9 +1,9 @@
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { RawStory } from './perplexity'
 
-let _client: Anthropic | null = null
+let _client: GoogleGenerativeAI | null = null
 function getClient() {
-  if (!_client) _client = new Anthropic()
+  if (!_client) _client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
   return _client
 }
 
@@ -49,17 +49,10 @@ export async function scoreAndSummarizeStories(stories: RawStory[]): Promise<Sco
     rawContent: s.rawContent,
   })))
 
-  const message = await getClient().messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 2000,
-    messages: [{
-      role: 'user',
-      content: `${SCORING_PROMPT}\n\nStories to score:\n${storiesJson}`,
-    }],
-  })
+  const model = getClient().getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const result = await model.generateContent(`${SCORING_PROMPT}\n\nStories to score:\n${storiesJson}`)
+  const content = result.response.text()
 
-  const firstBlock = message.content[0] as { type?: string; text?: string }
-  const content = firstBlock.text ?? '[]'
   const cleaned = content.replace(/```json\n?|\n?```/g, '').trim()
   const scored = JSON.parse(cleaned) as Array<{ url: string; score: number; summary: string; category: string }>
 
