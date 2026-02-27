@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { StoryCard } from './components/StoryCard'
 import { TopicFilter } from './components/TopicFilter'
 import { StatusHeader } from './components/StatusHeader'
+import { StoryReader } from './components/StoryReader'
 
 interface Story {
   id: string
@@ -14,12 +15,14 @@ interface Story {
   score: number | null
   category: string | null
   fetchedAt: string
+  tweetAuthor?: string | null
 }
 
 export default function Home() {
   const [stories, setStories] = useState<Story[]>([])
   const [category, setCategory] = useState('All')
   const [loading, setLoading] = useState(true)
+  const [readerIndex, setReaderIndex] = useState<number | null>(null)
 
   const loadStories = useCallback(async () => {
     setLoading(true)
@@ -47,8 +50,15 @@ export default function Home() {
         <div className="text-center text-gray-400 py-16">No stories yet. Hit Refresh to fetch.</div>
       ) : (
         <div className="flex flex-col gap-3">
-          {stories.map(story => <StoryCard key={story.id} story={story} />)}
+          {stories.map((story, index) => <StoryCard key={story.id} story={story} onClick={() => setReaderIndex(index)} />)}
         </div>
+      )}
+      {readerIndex !== null && (
+        <StoryReader
+          stories={stories}
+          initialIndex={readerIndex}
+          onClose={() => setReaderIndex(null)}
+        />
       )}
     </main>
   )
