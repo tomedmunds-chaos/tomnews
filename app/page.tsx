@@ -36,23 +36,39 @@ export default function Home() {
   useEffect(() => { loadStories() }, [loadStories])
 
   return (
-    <main className="max-w-2xl mx-auto px-4 pb-16">
+    <main className="max-w-2xl mx-auto px-4 pb-20">
       <StatusHeader onRefresh={loadStories} />
-      <div className="mt-2 text-right">
-        <a href="/digests" className="text-sm text-gray-400 hover:text-gray-700">Digest history →</a>
+
+      <div className="mt-1 flex justify-end">
+        <a
+          href="/digests"
+          className="font-label text-xs tracking-widest uppercase text-muted hover:text-accent transition-colors"
+        >
+          Digest History →
+        </a>
       </div>
-      <div className="mt-4 mb-4">
-        <TopicFilter selected={category} onChange={(cat) => { setReaderIndex(null); setCategory(cat) }} />
-      </div>
+
+      <TopicFilter
+        selected={category}
+        onChange={(cat) => { setReaderIndex(null); setCategory(cat) }}
+      />
+
       {loading ? (
-        <div className="text-center text-gray-400 py-16">Loading stories...</div>
+        <div className="font-label text-xs tracking-widest uppercase text-muted text-center py-20">
+          Loading…
+        </div>
       ) : stories.length === 0 ? (
-        <div className="text-center text-gray-400 py-16">No stories yet. Hit Refresh to fetch.</div>
+        <div className="font-label text-xs tracking-widest uppercase text-muted text-center py-20">
+          No stories yet — hit Refresh to fetch
+        </div>
       ) : (
-        <div className="flex flex-col gap-3">
-          {stories.map((story, index) => <StoryCard key={story.id} story={story} onClick={() => setReaderIndex(index)} />)}
+        <div>
+          {stories.map((story, index) => (
+            <StoryCard key={story.id} story={story} onClick={() => setReaderIndex(index)} />
+          ))}
         </div>
       )}
+
       {readerIndex !== null && (
         <StoryReader
           stories={stories}
