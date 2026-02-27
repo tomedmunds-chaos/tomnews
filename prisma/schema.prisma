@@ -20,6 +20,7 @@ model Story {
   fetchedAt        DateTime  @default(now())
   includedInDigest Boolean   @default(false)
   tweetAuthor      String?
+  imageUrl         String?
 
   @@map("stories")
 }

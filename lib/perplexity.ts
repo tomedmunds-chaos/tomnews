@@ -4,6 +4,7 @@ export interface RawStory {
   sourceDomain: string
   rawContent: string
   publishedAt?: string
+  imageUrl?: string
 }
 
 const SYSTEM_PROMPT = `You are a news extraction assistant. Given a search query about AI news,
