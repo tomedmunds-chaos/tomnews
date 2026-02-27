@@ -7,11 +7,14 @@ export async function fetchOgImage(url: string): Promise<string | null> {
       signal: controller.signal,
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TheSignal/1.0)' },
     })
-    clearTimeout(timeout)
 
-    if (!response.ok) return null
+    if (!response.ok) {
+      clearTimeout(timeout)
+      return null
+    }
 
     const html = await response.text()
+    clearTimeout(timeout)
 
     // og:image — both attribute orders
     const ogMatch =
