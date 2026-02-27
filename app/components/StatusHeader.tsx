@@ -29,26 +29,55 @@ export function StatusHeader({ onRefresh }: { onRefresh: () => void }) {
     onRefresh()
   }
 
+  const dateStr = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).toUpperCase()
+
+  const storyCount = status?.totalStories ?? 0
+  const lastFetchTime = status?.lastFetch
+    ? new Date(status.lastFetch.ranAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : null
+
   return (
-    <div className="flex items-center justify-between py-3 border-b border-gray-200">
-      <div>
-        <h1 className="text-xl font-bold">AI News</h1>
-        {status?.lastFetch && (
-          <p className="text-xs text-gray-400 mt-0.5">
-            Last fetch: {new Date(status.lastFetch.ranAt).toLocaleString()} · {status.totalStories} stories
-            {status.lastFetch.status === 'error' && (
-              <span className="text-red-500 ml-1" title={status.lastFetch.error}>· Fetch error{status.lastFetch.error ? `: ${status.lastFetch.error.slice(0, 200)}` : ''}</span>
-            )}
-          </p>
-        )}
+    <header className="pt-8 pb-0">
+      <div className="relative text-center">
+        {/* Refresh — top right */}
+        <button
+          onClick={handleRefresh}
+          disabled={refreshing}
+          className="absolute right-0 top-1 font-label text-xs tracking-widest uppercase text-muted hover:text-accent transition-colors disabled:opacity-40"
+        >
+          {refreshing ? 'FETCHING…' : '↺ REFRESH'}
+        </button>
+
+        {/* Masthead title */}
+        <h1 className="font-display text-5xl font-bold tracking-tight text-ink leading-none">
+          The Signal
+        </h1>
+
+        {/* Date */}
+        <p className="mt-2 font-label text-xs tracking-widest text-muted">
+          {dateStr}
+        </p>
+
+        {/* Status */}
+        <p className="mt-0.5 font-label text-xs tracking-widest text-muted">
+          {storyCount} STORIES
+          {lastFetchTime && ` · LAST FETCH ${lastFetchTime}`}
+          {status?.lastFetch?.status === 'error' && (
+            <span className="text-accent ml-2" title={status.lastFetch.error}>
+              · FETCH ERROR
+            </span>
+          )}
+        </p>
       </div>
-      <button
-        onClick={handleRefresh}
-        disabled={refreshing}
-        className="text-sm px-3 py-1.5 bg-gray-900 text-white rounded hover:bg-gray-700 disabled:opacity-50"
-      >
-        {refreshing ? 'Refreshing...' : 'Refresh now'}
-      </button>
-    </div>
+
+      {/* Double masthead rule */}
+      <div className="mt-5 border-t-[3px] border-ink" />
+      <div className="mt-0.5 border-t border-ink" />
+    </header>
   )
 }
