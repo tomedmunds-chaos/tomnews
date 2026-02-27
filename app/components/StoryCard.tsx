@@ -24,7 +24,7 @@ export function StoryCard({ story, onClick }: { story: Story; onClick: () => voi
       onClick={onClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick() }}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick() } }}
     >
       {/* Red left accent — scales in on hover */}
       <div
