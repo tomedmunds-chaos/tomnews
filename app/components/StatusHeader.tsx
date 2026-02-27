@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 
 interface Status {
-  lastFetch: { ranAt: string; status: string; storiesFound: number } | null
+  lastFetch: { ranAt: string; status: string; storiesFound: number; error?: string } | null
   totalStories: number
 }
 
@@ -15,10 +15,17 @@ export function StatusHeader({ onRefresh }: { onRefresh: () => void }) {
     fetch('/api/status').then(r => r.json()).then(setStatus)
   }, [])
 
+  async function reloadStatus() {
+    const r = await fetch('/api/status')
+    const data = await r.json()
+    setStatus(data)
+  }
+
   async function handleRefresh() {
     setRefreshing(true)
     await fetch('/api/refresh', { method: 'POST' })
     setRefreshing(false)
+    await reloadStatus()
     onRefresh()
   }
 
@@ -30,7 +37,7 @@ export function StatusHeader({ onRefresh }: { onRefresh: () => void }) {
           <p className="text-xs text-gray-400 mt-0.5">
             Last fetch: {new Date(status.lastFetch.ranAt).toLocaleString()} · {status.totalStories} stories
             {status.lastFetch.status === 'error' && (
-              <span className="text-red-500 ml-1">· Fetch error</span>
+              <span className="text-red-500 ml-1" title={status.lastFetch.error}>· Fetch error{status.lastFetch.error ? `: ${status.lastFetch.error.slice(0, 80)}` : ''}</span>
             )}
           </p>
         )}

@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const [lastFetch, totalStories] = await Promise.all([
-      prisma.fetchLog.findFirst({ orderBy: { ranAt: 'desc' } }),
+      prisma.fetchLog.findFirst({ orderBy: { ranAt: 'desc' }, select: { ranAt: true, status: true, storiesFound: true, error: true } }),
       prisma.story.count(),
     ])
     return NextResponse.json({ lastFetch, totalStories })

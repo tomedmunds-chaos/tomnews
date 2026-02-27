@@ -42,39 +42,34 @@ Return ONLY the JSON array, no other text.`
 export async function scoreAndSummarizeStories(stories: RawStory[]): Promise<ScoredStory[]> {
   if (stories.length === 0) return []
 
-  try {
-    const storiesJson = JSON.stringify(stories.map(s => ({
-      title: s.title,
-      url: s.url,
-      sourceDomain: s.sourceDomain,
-      rawContent: s.rawContent,
-    })))
+  const storiesJson = JSON.stringify(stories.map(s => ({
+    title: s.title,
+    url: s.url,
+    sourceDomain: s.sourceDomain,
+    rawContent: s.rawContent,
+  })))
 
-    const message = await getClient().messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: `${SCORING_PROMPT}\n\nStories to score:\n${storiesJson}`,
-      }],
-    })
+  const message = await getClient().messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 2000,
+    messages: [{
+      role: 'user',
+      content: `${SCORING_PROMPT}\n\nStories to score:\n${storiesJson}`,
+    }],
+  })
 
-    const firstBlock = message.content[0] as { type?: string; text?: string }
-    const content = firstBlock.text ?? '[]'
-    const cleaned = content.replace(/```json\n?|\n?```/g, '').trim()
-    const scored = JSON.parse(cleaned) as Array<{ url: string; score: number; summary: string; category: string }>
+  const firstBlock = message.content[0] as { type?: string; text?: string }
+  const content = firstBlock.text ?? '[]'
+  const cleaned = content.replace(/```json\n?|\n?```/g, '').trim()
+  const scored = JSON.parse(cleaned) as Array<{ url: string; score: number; summary: string; category: string }>
 
-    return stories.map(story => {
-      const scoring = scored.find(s => s.url === story.url)
-      return {
-        ...story,
-        score: scoring?.score ?? 5,
-        summary: scoring?.summary ?? story.rawContent.slice(0, 120),
-        category: scoring?.category ?? 'Other',
-      }
-    })
-  } catch (err) {
-    console.error('scoreAndSummarizeStories error:', err)
-    return []
-  }
+  return stories.map(story => {
+    const scoring = scored.find(s => s.url === story.url)
+    return {
+      ...story,
+      score: scoring?.score ?? 5,
+      summary: scoring?.summary ?? story.rawContent.slice(0, 120),
+      category: scoring?.category ?? 'Other',
+    }
+  })
 }
