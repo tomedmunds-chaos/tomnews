@@ -50,7 +50,7 @@ export default function Home() {
           href="/digests"
           className="font-label text-xs tracking-widest uppercase text-muted hover:text-accent transition-colors"
         >
-          Digest History <span aria-hidden="true">→</span>
+          DIGEST HISTORY <span aria-hidden="true">→</span>
         </a>
       </div>
 
