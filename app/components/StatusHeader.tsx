@@ -37,7 +37,7 @@ export function StatusHeader({ onRefresh }: { onRefresh: () => void }) {
           <p className="text-xs text-gray-400 mt-0.5">
             Last fetch: {new Date(status.lastFetch.ranAt).toLocaleString()} · {status.totalStories} stories
             {status.lastFetch.status === 'error' && (
-              <span className="text-red-500 ml-1" title={status.lastFetch.error}>· Fetch error{status.lastFetch.error ? `: ${status.lastFetch.error.slice(0, 80)}` : ''}</span>
+              <span className="text-red-500 ml-1" title={status.lastFetch.error}>· Fetch error{status.lastFetch.error ? `: ${status.lastFetch.error.slice(0, 200)}` : ''}</span>
             )}
           </p>
         )}
