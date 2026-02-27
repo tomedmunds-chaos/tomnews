@@ -10,6 +10,10 @@ export async function runFetchJob(): Promise<{ storiesFound: number; status: str
   let storiesFound = 0
 
   try {
+    // Delete stories older than 3 days
+    const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    await prisma.story.deleteMany({ where: { fetchedAt: { lt: cutoff } } })
+
     // Get all existing URLs to deduplicate against
     const existingStories = await prisma.story.findMany({ select: { url: true } })
     const existingUrls = existingStories.map((s: { url: string }) => s.url)

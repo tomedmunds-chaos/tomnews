@@ -12,6 +12,7 @@ jest.mock('../../prisma', () => ({
     story: {
       findMany: jest.fn(),
       createMany: jest.fn(),
+      deleteMany: jest.fn(),
     },
     fetchLog: {
       create: jest.fn(),
@@ -44,10 +45,27 @@ describe('runFetchJob', () => {
     )
   })
 
+  it('deletes stories older than 3 days before fetching', async () => {
+    ;(perplexity.fetchStoriesFromPerplexity as jest.Mock).mockResolvedValue([])
+    ;(socialdata.fetchTweetsFromAccounts as jest.Mock).mockResolvedValue([])
+    ;(prisma.story.findMany as jest.Mock).mockResolvedValue([])
+    ;(prisma.story.deleteMany as jest.Mock).mockResolvedValue({ count: 2 })
+    ;(prisma.fetchLog.create as jest.Mock).mockResolvedValue({})
+
+    await runFetchJob()
+
+    expect(prisma.story.deleteMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ fetchedAt: expect.objectContaining({ lt: expect.any(Date) }) }),
+      })
+    )
+  })
+
   it('logs error and still creates fetch log on failure', async () => {
     ;(perplexity.fetchStoriesFromPerplexity as jest.Mock).mockRejectedValue(new Error('network error'))
     ;(socialdata.fetchTweetsFromAccounts as jest.Mock).mockResolvedValue([])
     ;(prisma.story.findMany as jest.Mock).mockResolvedValue([])
+    ;(prisma.story.deleteMany as jest.Mock).mockResolvedValue({ count: 0 })
     ;(prisma.fetchLog.create as jest.Mock).mockResolvedValue({})
 
     const result = await runFetchJob()
