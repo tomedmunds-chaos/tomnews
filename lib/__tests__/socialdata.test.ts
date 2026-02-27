@@ -93,4 +93,53 @@ describe('fetchTweetsFromAccounts', () => {
 
     expect(stories).toHaveLength(2)
   })
+
+  it('extracts imageUrl from extended_entities photo media', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        tweets: [
+          {
+            id_str: '333',
+            full_text: 'Check out this chart',
+            tweet_created_at: '2026-02-27T10:00:00.000Z',
+            user: { screen_name: 'karpathy' },
+            entities: { urls: [] },
+            extended_entities: {
+              media: [
+                { media_url_https: 'https://pbs.twimg.com/media/abc.jpg', type: 'photo' },
+              ],
+            },
+          },
+        ],
+      }),
+    })
+
+    const stories = await fetchTweetsFromAccounts(['karpathy'])
+
+    expect(stories).toHaveLength(1)
+    expect(stories[0].imageUrl).toBe('https://pbs.twimg.com/media/abc.jpg')
+  })
+
+  it('leaves imageUrl undefined when tweet has no media', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        tweets: [
+          {
+            id_str: '444',
+            full_text: 'Text only tweet',
+            tweet_created_at: '2026-02-27T10:00:00.000Z',
+            user: { screen_name: 'karpathy' },
+            entities: { urls: [] },
+          },
+        ],
+      }),
+    })
+
+    const stories = await fetchTweetsFromAccounts(['karpathy'])
+
+    expect(stories).toHaveLength(1)
+    expect(stories[0].imageUrl).toBeUndefined()
+  })
 })

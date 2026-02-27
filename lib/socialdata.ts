@@ -12,6 +12,9 @@ interface SocialDataTweet {
   entities?: {
     urls?: Array<{ expanded_url: string; display_url: string }>
   }
+  extended_entities?: {
+    media?: Array<{ media_url_https: string; type: string }>
+  }
 }
 
 async function fetchUserTweets(username: string): Promise<TweetStory[]> {
@@ -54,6 +57,8 @@ async function fetchUserTweets(username: string): Promise<TweetStory[]> {
       }
     }
 
+    const photo = (tweet.extended_entities?.media ?? []).find(m => m.type === 'photo')
+
     return {
       title: tweet.full_text.slice(0, 100),
       url,
@@ -61,6 +66,7 @@ async function fetchUserTweets(username: string): Promise<TweetStory[]> {
       rawContent: tweet.full_text,
       publishedAt: tweet.tweet_created_at,
       tweetAuthor: tweet.user.screen_name,
+      ...(photo ? { imageUrl: photo.media_url_https } : {}),
     }
   })
 }
