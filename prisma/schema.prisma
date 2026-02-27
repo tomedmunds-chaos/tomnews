@@ -19,6 +19,7 @@ model Story {
   publishedAt      DateTime?
   fetchedAt        DateTime  @default(now())
   includedInDigest Boolean   @default(false)
+  tweetAuthor      String?
 
   @@map("stories")
 }
