@@ -63,6 +63,7 @@ describe('fetchTweetsFromAccounts', () => {
     expect(stories).toHaveLength(1)
     expect(stories[0].url).toBe('https://arxiv.org/abs/2502.12345')
     expect(stories[0].sourceDomain).toBe('arxiv.org')
+    expect(stories[0].imageUrl).toBeUndefined()
   })
 
   it('skips an account that returns a non-ok response without throwing', async () => {
@@ -141,5 +142,32 @@ describe('fetchTweetsFromAccounts', () => {
 
     expect(stories).toHaveLength(1)
     expect(stories[0].imageUrl).toBeUndefined()
+  })
+
+  it('extracts imageUrl from video media thumbnail', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        tweets: [
+          {
+            id_str: '555',
+            full_text: 'Watch this demo',
+            tweet_created_at: '2026-02-27T10:00:00.000Z',
+            user: { screen_name: 'karpathy' },
+            entities: { urls: [] },
+            extended_entities: {
+              media: [
+                { media_url_https: 'https://pbs.twimg.com/ext_tw_video_thumb/abc/pu/img/thumb.jpg', type: 'video' },
+              ],
+            },
+          },
+        ],
+      }),
+    })
+
+    const stories = await fetchTweetsFromAccounts(['karpathy'])
+
+    expect(stories).toHaveLength(1)
+    expect(stories[0].imageUrl).toBe('https://pbs.twimg.com/ext_tw_video_thumb/abc/pu/img/thumb.jpg')
   })
 })

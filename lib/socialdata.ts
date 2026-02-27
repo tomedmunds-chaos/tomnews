@@ -57,7 +57,10 @@ async function fetchUserTweets(username: string): Promise<TweetStory[]> {
       }
     }
 
-    const photo = (tweet.extended_entities?.media ?? []).find(m => m.type === 'photo')
+    // Use the first media item regardless of type — all types (photo, video, animated_gif) carry a usable thumbnail in media_url_https
+    const mediaItem = (tweet.extended_entities?.media ?? []).find(
+      m => m.type === 'photo' || m.type === 'video' || m.type === 'animated_gif'
+    )
 
     return {
       title: tweet.full_text.slice(0, 100),
@@ -66,7 +69,8 @@ async function fetchUserTweets(username: string): Promise<TweetStory[]> {
       rawContent: tweet.full_text,
       publishedAt: tweet.tweet_created_at,
       tweetAuthor: tweet.user.screen_name,
-      ...(photo ? { imageUrl: photo.media_url_https } : {}),
+      // Omit imageUrl entirely (rather than setting undefined) when no media is present
+      ...(mediaItem ? { imageUrl: mediaItem.media_url_https } : {}),
     }
   })
 }
