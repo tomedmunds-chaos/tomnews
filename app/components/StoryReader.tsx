@@ -67,7 +67,7 @@ export function StoryReader({
     touchStartX.current = null
     touchStartY.current = null
     if (Math.abs(dy) > Math.abs(dx)) {
-      if (dy > 60) onClose()
+      if (dy > 60) onCloseRef.current()
       return
     }
     if (Math.abs(dx) > 30) {
@@ -96,7 +96,7 @@ export function StoryReader({
       {/* Close button */}
       <button
         className="absolute top-2 right-3 text-white/60 hover:text-white p-2 text-lg leading-none"
-        onClick={(e) => { e.stopPropagation(); onClose() }}
+        onClick={(e) => { e.stopPropagation(); onCloseRef.current() }}
         aria-label="Close reader"
       >
         ✕
