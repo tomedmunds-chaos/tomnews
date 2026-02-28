@@ -26,7 +26,16 @@
       "Bash(RAILWAY_TOKEN=2d5396c2-baa3-4c60-8610-3f24364ea2f2 ~/bin/railway whoami:*)",
       "Bash(RAILWAY_API_TOKEN=2d5396c2-baa3-4c60-8610-3f24364ea2f2 ~/bin/railway whoami:*)",
       "Bash(~/bin/railway:*)",
-      "Bash(HOME=/Users/tomedmunds ~/bin/railway whoami:*)"
+      "Bash(HOME=/Users/tomedmunds ~/bin/railway whoami:*)",
+      "Bash(railway status:*)",
+      "Bash(RAILWAY_TOKEN=2d5396c2-baa3-4c60-8610-3f24364ea2f2 npx:*)",
+      "Bash(claude:*)",
+      "Bash(env:*)",
+      "Bash(security find-generic-password:*)",
+      "Bash(security:*)",
+      "Bash(brew install:*)",
+      "Bash(node:*)",
+      "Bash(export:*)"
     ]
   }
 }
